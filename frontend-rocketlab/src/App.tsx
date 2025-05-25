@@ -1,34 +1,25 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter, Route, Routes } from 'react-router-dom' 
 import './App.css'
+import Home from './Pages/Home/Home'
+import ProductDetail from './Pages/Product/ProductDetail'
+import Cart from './Pages/Cart/Cart'
+import { CartProvider } from './contexts/CartContext';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <CartProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/produto/:id" element={<ProductDetail />} />
+          <Route path="/carrinho" element={<Cart />} />
+          <Route path="*" element={<div style={{color: 'red', fontWeight: 'bold'}}>Página não encontrada ou erro de rota</div>} />
+        </Routes>
+        <div style={{position: 'fixed', bottom: 0, left: 0, background: '#eee', color: '#333', padding: 4, fontSize: 12}}>
+          Se você vê este texto, o React está renderizando o App normalmente.
+        </div>
+      </BrowserRouter>
+    </CartProvider>
   )
 }
 

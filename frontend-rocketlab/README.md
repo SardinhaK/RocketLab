@@ -1,54 +1,60 @@
-# React + TypeScript + Vite
+# RocketLab - Sistema de Compras Online
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este é um projeto de frontend para um sistema de compras online, desenvolvido com React, TypeScript, Vite e TailwindCSS.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Visualizar uma lista de produtos na Home
+- Visualizar informações detalhadas de um produto
+- Adicionar ou remover produtos do carrinho de compras
+- Visualizar o valor total do carrinho em tempo real
+- Finalizar a compra do carrinho
 
-## Expanding the ESLint configuration
+## Como rodar o projeto
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Pré-requisitos
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- [Node.js](https://nodejs.org/) instalado
+- [pnpm](https://pnpm.io/) instalado (ou use npm/yarn se preferir)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Passo a passo
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. Clone o repositório:
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+   ```powershell
+   git clone https://github.com/seu-usuario/seu-repo.git
+   cd seu-repo/frontend-rocketlab
+   ```
+
+2. Instale as dependências:
+
+   ```powershell
+   pnpm install
+   ```
+
+3. Rode o projeto:
+
+   ```powershell
+   pnpm run dev
+   ```
+
+4. Acesse no navegador:
+
+   ```
+   http://localhost:5173
+   ```
+
+## Estrutura de Pastas
+
+- `Pages/` - Páginas principais (Home, Produto, Carrinho)
+- `src/contexts/` - Contexto global do carrinho
+- `src/data/` - Mock de produtos
+
+## Observações
+
+- O projeto utiliza TailwindCSS para estilização.
+- O backend não está incluso neste repositório.
+
+---
+
+RocketLab 2025
