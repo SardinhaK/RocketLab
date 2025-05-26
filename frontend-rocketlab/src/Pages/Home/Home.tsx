@@ -48,7 +48,7 @@ export const Home = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col">
+        <div className="min-h-screen bg-gradient-to-br from-blue-700 to-orange-700 flex flex-col">
             <Navbar searchTerm={searchTerm} onSearchChange={handleSearchChange} />
 
             <div className="container mx-auto flex-grow p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row gap-6 lg:gap-8">
@@ -76,7 +76,7 @@ export const Home = () => {
                 {/* Conteúdo Principal (Grid de Produtos) */}
                 <main className="flex-grow">
                     {filteredProducts.length > 0 ? (
-                        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4"> {/* Ajustado para 4 colunas em XL para acomodar sidebar */}
+                        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"> {/* Ajustado para 4 colunas em XL para acomodar sidebar */}
                             {filteredProducts.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
