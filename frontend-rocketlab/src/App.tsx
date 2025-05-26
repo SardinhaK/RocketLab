@@ -15,9 +15,6 @@ function App() {
           <Route path="/carrinho" element={<Cart />} />
           <Route path="*" element={<div style={{color: 'red', fontWeight: 'bold'}}>Página não encontrada ou erro de rota</div>} />
         </Routes>
-        <div style={{position: 'fixed', bottom: 0, left: 0, background: '#eee', color: '#333', padding: 4, fontSize: 12}}>
-          Se você vê este texto, o React está renderizando o App normalmente.
-        </div>
       </BrowserRouter>
     </CartProvider>
   )
