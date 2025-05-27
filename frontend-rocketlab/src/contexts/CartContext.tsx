@@ -1,21 +1,23 @@
-import React, { createContext, useContext, useState } from 'react';
-import type { ReactNode } from 'react';
+// src/contexts/CartContext.tsx
 
-export type Product = { // <--- DEVE TER "export type"
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'; // Adicionado useEffect e ReactNode explicitamente
+
+// Seus tipos (estão corretos)
+export type Product = {
   id: number;
   name: string;
   description: string;
   price: number;
   image?: string;
-  category: string; // Campo que adicionamos
-  rating?: number;   // Campo que adicionamos (opcional)
+  category: string;
+  rating?: number;
 };
 export type CartItem = Product & { quantity: number };
 
 interface CartContextType {
   cart: CartItem[];
   addToCart: (product: Product) => void;
-  removeFromCart: (productId: number) => void;
+  removeFromCart: (productId: number) => void; // Ajustei a lógica desta na implementação
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
   getTotal: () => number;
@@ -30,8 +32,32 @@ export const useCart = () => {
   return context;
 };
 
+// Chave para o localStorage
+const LOCAL_STORAGE_CART_KEY = 'meuCarrinhoRocketLab'; // Você pode escolher o nome que quiser
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  // 1. CARREGAR ESTADO INICIAL DO LOCALSTORAGE
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      const storedCart = window.localStorage.getItem(LOCAL_STORAGE_CART_KEY);
+      if (storedCart) {
+        return JSON.parse(storedCart);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar o carrinho do localStorage:", error);
+      // Em caso de erro (ex: JSON inválido), retorna um carrinho vazio
+    }
+    return []; // Retorna um array vazio se não houver nada ou em caso de erro
+  });
+
+  // 2. SALVAR NO LOCALSTORAGE QUANDO O CARRINHO MUDAR
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(LOCAL_STORAGE_CART_KEY, JSON.stringify(cart));
+    } catch (error) {
+      console.error("Erro ao salvar o carrinho no localStorage:", error);
+    }
+  }, [cart]); // Este efeito é executado sempre que o estado 'cart' muda
 
   const addToCart = (product: Product) => {
     setCart((prevCart) => {
@@ -43,24 +69,27 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             : item
         );
       }
+      // Garante que o preço é um número
+      if (typeof product.price !== 'number' || isNaN(product.price)) {
+        console.error("Tentativa de adicionar produto com preço inválido:", product);
+        return prevCart; // Não modifica o carrinho se o preço for inválido
+      }
       return [...prevCart, { ...product, quantity: 1 }];
     });
   };
 
+  // A função removeFromCart no seu código original decrementava.
+  // Se a intenção é remover completamente, o filter é mais direto.
+  // Se a intenção era decrementar e remover se chegasse a zero,
+  // a função updateQuantity já cobre isso.
+  // Vou assumir que removeFromCart remove o item independentemente da quantidade.
   const removeFromCart = (productId: number) => {
-    setCart((prevCart) =>
-      prevCart
-        .map((item) =>
-          item.id === productId
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
-        )
-        .filter((item) => item.quantity > 0)
-    );
+    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
   };
 
   const updateQuantity = (productId: number, quantity: number) => {
     if (quantity <= 0) {
+      // Se a quantidade for 0 ou menor, remove o item do carrinho
       setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
     } else {
       setCart((prevCart) =>
@@ -71,11 +100,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const clearCart = () => setCart([]);
+  const clearCart = () => {
+    setCart([]); // Isso vai disparar o useEffect que limpa o localStorage também
+  };
 
-  const getTotal = () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const getTotal = () => {
+    return cart.reduce((sum, item) => {
+      const price = typeof item.price === 'number' && !isNaN(item.price) ? item.price : 0;
+      const quantity = typeof item.quantity === 'number' && !isNaN(item.quantity) ? item.quantity : 0;
+      return sum + price * quantity;
+    }, 0);
+  };
 
-  const getItemCount = () => cart.reduce((sum, item) => sum + item.quantity, 0);
+  const getItemCount = () => {
+    return cart.reduce((sum, item) => {
+      const quantity = typeof item.quantity === 'number' && !isNaN(item.quantity) ? item.quantity : 0;
+      return sum + quantity;
+    }, 0);
+  };
 
   return (
     <CartContext.Provider
