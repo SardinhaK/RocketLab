@@ -43,6 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({ searchTerm, onSearchChange }) =>
                     alt="Logo Rocket Lab"
                     className="h-10 md:h-12 cursor-pointer transition-transform hover:scale-105"
                     onClick={() => navigate('/')}
+                    style={{ backgroundColor: 'white' }}
                 />
 
                 {/* Barra de Pesquisa Centralizada */}

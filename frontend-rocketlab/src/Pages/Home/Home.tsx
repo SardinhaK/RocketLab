@@ -17,6 +17,10 @@ const NoProductsIcon = () => (
 
 
 export const Home = () => {
+    const [minPrice, setMinPrice] = useState("");
+    const [maxPrice, setMaxPrice] = useState("");
+    const [minRating, setMinRating] = useState("");
+    const [maxRating, setMaxRating] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("Todas"); // "Todas" como padrão
 
@@ -28,13 +32,68 @@ export const Home = () => {
         return ["Todas", ...categories.sort((a, b) => a.localeCompare(b))];
     }, [allProducts]);
 
+    // 1. CRIAR FUNÇÕES DE CALLBACK PARA OS NOVOS FILTROS
+    const handleMinPriceChange = (event: ChangeEvent<HTMLInputElement>) => setMinPrice(event.target.value);
+    const handleMaxPriceChange = (event: ChangeEvent<HTMLInputElement>) => setMaxPrice(event.target.value);
+    const handleMinRatingChange = (event: ChangeEvent<HTMLInputElement>) => setMinRating(event.target.value);
+    const handleMaxRatingChange = (event: ChangeEvent<HTMLInputElement>) => setMaxRating(event.target.value);
+
+    // 2. CRIAR FUNÇÃO PARA LIMPAR TODOS OS FILTROS
+    const handleClearFilters = () => {
+        setSearchTerm("");
+        setSelectedCategory("Todas");
+        setMinPrice("");
+        setMaxPrice("");
+        setMinRating("");
+        setMaxRating("");
+        // Se tiver outros estados de filtro, resete-os aqui também
+    };
+
+    // 3. ATUALIZAR LÓGICA DE FILTRAGEM
     const filteredProducts = useMemo(() => {
         return allProducts.filter(product => {
             const nameMatch = searchTerm === "" || product.name.toLowerCase().includes(searchTerm.toLowerCase());
             const categoryMatch = selectedCategory === "Todas" || product.category === selectedCategory;
-            return nameMatch && categoryMatch;
+
+            // Lógica para filtro de preço
+            const productPrice = product.price; // Assumindo que product.price é um número
+            const minPriceFloat = parseFloat(minPrice);
+            const maxPriceFloat = parseFloat(maxPrice);
+
+            const minPriceMatch = minPrice === "" || isNaN(minPriceFloat) || productPrice >= minPriceFloat;
+            const maxPriceMatch = maxPrice === "" || isNaN(maxPriceFloat) || productPrice <= maxPriceFloat;
+            const priceMatch = minPriceMatch && maxPriceMatch;
+
+            // Lógica para filtro de nota (rating)
+            // Certifique-se que seus produtos têm a propriedade 'rating' e que ela é um número.
+            // Se 'rating' for opcional, trate o caso de ser undefined.
+            const productRating = product.rating;
+            const minRatingFloat = parseFloat(minRating);
+            const maxRatingFloat = parseFloat(maxRating);
+
+            const minRatingMatch = minRating === "" || isNaN(minRatingFloat) || (typeof productRating === 'number' && productRating >= minRatingFloat);
+            const maxRatingMatch = maxRating === "" || isNaN(maxRatingFloat) || (typeof productRating === 'number' && productRating <= maxRatingFloat);
+            // Se o produto não tiver rating, ele não deve ser filtrado por rating, a menos que um valor específico seja esperado.
+            // Uma abordagem é: se o produto não tem rating, ele passa no filtro de rating (a menos que um filtro específico seja definido e não satisfeito).
+            // Ou, se productRating for undefined, ele não passaria se minRating ou maxRating estiverem definidos.
+            // A lógica abaixo assume que se o produto não tem rating, ele só passa se os filtros de rating não estiverem preenchidos.
+            // Se product.rating for opcional, você pode precisar ajustar esta lógica.
+            // Para simplificar: se product.rating não existir, não aplicamos o filtro de nota, a menos que o filtro esteja vazio.
+            let ratingMatch = true;
+            if (typeof productRating === 'number') { // Só filtra se o produto tiver nota
+                ratingMatch = minRatingMatch && maxRatingMatch;
+            } else {
+                // Se o produto não tem nota, ele só "passa" se os filtros de nota não estiverem definidos.
+                // Se algum filtro de nota estiver definido, e o produto não tem nota, ele não passa.
+                if (minRating !== "" || maxRating !== "") {
+                    ratingMatch = false;
+                }
+            }
+
+
+            return nameMatch && categoryMatch && priceMatch && ratingMatch;
         });
-    }, [allProducts, searchTerm, selectedCategory]);
+    }, [allProducts, searchTerm, selectedCategory, minPrice, maxPrice, minRating, maxRating]); // Adicionar novos estados às dependências
 
     const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
@@ -43,8 +102,7 @@ export const Home = () => {
     const handleCategoryChange = (event: ChangeEvent<HTMLSelectElement>) => {
         setSelectedCategory(event.target.value);
     };
-    
-    // Estado para controlar a visibilidade da sidebar em mobile
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     return (
@@ -52,7 +110,6 @@ export const Home = () => {
             <Navbar searchTerm={searchTerm} onSearchChange={handleSearchChange} />
 
             <div className="container mx-auto flex-grow p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row gap-6 lg:gap-8">
-                {/* Botão para abrir Sidebar em Telas Pequenas */}
                 <div className="md:hidden mb-4 text-center">
                     <button
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -63,20 +120,27 @@ export const Home = () => {
                     </button>
                 </div>
 
-                {/* Sidebar */}
-                {/* Em telas pequenas, a sidebar pode ser condicional ou um modal */}
                 <div className={`md:block ${isSidebarOpen ? 'block' : 'hidden'} mb-6 md:mb-0`}>
+                    {/* 4. PASSAR NOVAS PROPS PARA A SIDEBAR */}
                     <Sidebar
                         uniqueCategories={uniqueCategories}
                         selectedCategory={selectedCategory}
                         onCategoryChange={handleCategoryChange}
+                        minPrice={minPrice}
+                        maxPrice={maxPrice}
+                        onMinPriceChange={handleMinPriceChange}
+                        onMaxPriceChange={handleMaxPriceChange}
+                        minRating={minRating}
+                        maxRating={maxRating}
+                        onMinRatingChange={handleMinRatingChange}
+                        onMaxRatingChange={handleMaxRatingChange}
+                        onClearFilters={handleClearFilters} // Passando a função para limpar filtros
                     />
                 </div>
 
-                {/* Conteúdo Principal (Grid de Produtos) */}
                 <main className="flex-grow">
                     {filteredProducts.length > 0 ? (
-                        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"> {/* Ajustado para 4 colunas em XL para acomodar sidebar */}
+                        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                             {filteredProducts.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
