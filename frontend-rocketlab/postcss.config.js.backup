@@ -1,0 +1,8 @@
+// postcss.config.js
+module.exports = {
+  plugins: {
+    '@tailwindcss/postcss': {}, // Ou require('@tailwindcss/postcss') se preferir
+    autoprefixer: {},
+    // Outros plugins, se você tiver
+  }
+};
