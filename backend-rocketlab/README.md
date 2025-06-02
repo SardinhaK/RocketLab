@@ -21,78 +21,133 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# Sistema de Compras Online - RocketLab
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Este projeto é uma API backend desenvolvida com NestJS, TypeScript e Prisma ORM, utilizando SQLite como banco de dados. O sistema permite gerenciar produtos, adicionar/remover itens em um carrinho virtual e finalizar compras.
 
-## Project setup
+## Funcionalidades
+- CRUD de produtos (criar, listar, buscar, atualizar, remover)
+- Carrinho de compras (adicionar, remover, atualizar itens, limpar carrinho)
+- Finalização de compra (checkout)
+- Documentação automática via Swagger
 
-```bash
-$ pnpm install
+## Tecnologias Utilizadas
+- [NestJS](https://nestjs.com/)
+- [Prisma ORM](https://www.prisma.io/)
+- [SQLite](https://www.sqlite.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+
+## Como executar o projeto
+
+### 1. Instale as dependências
+
+```powershell
+pnpm install
 ```
 
-## Compile and run the project
+ou
 
-```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+```powershell
+npm install
 ```
 
-## Run tests
+### 2. Rode as migrations do banco de dados
 
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+```powershell
+npx prisma migrate dev --name init
 ```
 
-## Deployment
+### 3. Inicie a aplicação
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+```powershell
+pnpm start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+ou
 
-## Resources
+```powershell
+npm run start:dev
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+A API estará disponível em: http://localhost:3000
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### 4. Acesse a documentação Swagger
 
-## Support
+Abra no navegador:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+http://localhost:3000/api
+```
 
-## Stay in touch
+Você pode testar todos os endpoints diretamente pela interface Swagger.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Exemplos de uso (via cURL)
 
-## License
+### Produtos
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+**Criar produto:**
+```sh
+curl -X POST http://localhost:3000/products -H "Content-Type: application/json" -d "{\"name\":\"Notebook\",\"description\":\"Dell Inspiron\",\"price\":3500,\"stock\":10}"
+```
+
+**Listar produtos:**
+```sh
+curl http://localhost:3000/products
+```
+
+**Buscar produto por ID:**
+```sh
+curl http://localhost:3000/products/1
+```
+
+**Atualizar produto:**
+```sh
+curl -X PATCH http://localhost:3000/products/1 -H "Content-Type: application/json" -d "{\"price\":3200}"
+```
+
+**Remover produto:**
+```sh
+curl -X DELETE http://localhost:3000/products/1
+```
+
+### Carrinho
+
+**Adicionar item ao carrinho:**
+```sh
+curl -X POST http://localhost:3000/cart/1/add -H "Content-Type: application/json" -d "{\"productId\":1,\"quantity\":2}"
+```
+
+**Ver carrinho:**
+```sh
+curl http://localhost:3000/cart/1
+```
+
+**Atualizar quantidade de item:**
+```sh
+curl -X PATCH http://localhost:3000/cart/1/item/1 -H "Content-Type: application/json" -d "{\"quantity\":3}"
+```
+
+**Remover item do carrinho:**
+```sh
+curl -X DELETE http://localhost:3000/cart/1/item/1
+```
+
+**Limpar carrinho:**
+```sh
+curl -X DELETE http://localhost:3000/cart/1/clear
+```
+
+**Finalizar compra:**
+```sh
+curl -X POST http://localhost:3000/cart/1/checkout
+```
+
+---
+
+## Observações
+- O `cartId` pode ser qualquer número inteiro. Se não existir, será criado automaticamente ao adicionar o primeiro item.
+- Utilize o Swagger para explorar e testar todos os endpoints facilmente.
+
+---
+
+RocketLab - 2025
