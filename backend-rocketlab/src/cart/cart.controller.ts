@@ -1,37 +1,39 @@
-import { Controller, Post, Body, Param, Patch, Delete, Get } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Delete, Get, UseGuards, Request, Param } from '@nestjs/common';
 import { CartService } from './cart.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @Get(':cartId')
-  getCart(@Param('cartId') cartId: string) {
-    return this.cartService.getCart(Number(cartId));
+  @Get()
+  getCart(@Request() req) {
+    return this.cartService.getCartByUser(req.user.id);
   }
 
-  @Post(':cartId/add')
-  addToCart(@Param('cartId') cartId: string, @Body() body: { productId: number; quantity: number }) {
-    return this.cartService.addToCart(Number(cartId), body.productId, body.quantity);
+  @Post('add')
+  addToCart(@Request() req, @Body() body: { productId: number; quantity: number }) {
+    return this.cartService.addToCart(req.user.id, body.productId, body.quantity);
   }
 
-  @Patch(':cartId/item/:productId')
-  updateItem(@Param('cartId') cartId: string, @Param('productId') productId: string, @Body() body: { quantity: number }) {
-    return this.cartService.updateItem(Number(cartId), Number(productId), body.quantity);
+  @Patch('item/:productId')
+  updateItem(@Request() req, @Param('productId') productId: string, @Body() body: { quantity: number }) {
+    return this.cartService.updateItem(req.user.id, Number(productId), body.quantity);
   }
 
-  @Delete(':cartId/item/:productId')
-  removeFromCart(@Param('cartId') cartId: string, @Param('productId') productId: string) {
-    return this.cartService.removeFromCart(Number(cartId), Number(productId));
+  @Delete('item/:productId')
+  removeFromCart(@Request() req, @Param('productId') productId: string) {
+    return this.cartService.removeFromCart(req.user.id, Number(productId));
   }
 
-  @Delete(':cartId/clear')
-  clearCart(@Param('cartId') cartId: string) {
-    return this.cartService.clearCart(Number(cartId));
+  @Delete('clear')
+  clearCart(@Request() req) {
+    return this.cartService.clearCart(req.user.id);
   }
 
-  @Post(':cartId/checkout')
-  checkout(@Param('cartId') cartId: string) {
-    return this.cartService.checkout(Number(cartId));
+  @Post('checkout')
+  checkout(@Request() req) {
+    return this.cartService.checkout(req.user.id);
   }
 }

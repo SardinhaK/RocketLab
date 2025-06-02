@@ -22,9 +22,19 @@ model Product {
   cartItems   CartItem[]
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  carts     Cart[]
+}
+
 model Cart {
-  id    Int        @id @default(autoincrement())
-  items CartItem[]
+  id      Int        @id @default(autoincrement())
+  userId  Int
+  user    User       @relation(fields: [userId], references: [id])
+  items   CartItem[]
 }
 
 model CartItem {
