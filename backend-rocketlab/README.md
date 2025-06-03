@@ -40,8 +40,8 @@ Um sistema de backend para um carrinho de compras online, desenvolvido com NestJ
 ### 1. Clonar o repositório
 
 ```powershell
-git clone https://github.com/SardinhaK/RocketLab/tree/main
-cd backend-rocketlab
+git clone https://github.com/SardinhaK/RocketLab
+cd Rocketlab/backend-rocketlab
 ```
 
 ### 2. Criar arquivo de ambiente
