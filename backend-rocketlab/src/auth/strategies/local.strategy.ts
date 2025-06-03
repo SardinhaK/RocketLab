@@ -14,8 +14,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user; // Retorna o usuário sem a senha
-    return result;
+    return user; // user é ResponseUserDto, não tem password
+    // Aqui, retorne user diretamente sem tentar remover password
   }
 }

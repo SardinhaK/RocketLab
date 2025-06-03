@@ -1,23 +1,22 @@
 import { Injectable, NotFoundException, ConflictException, InternalServerErrorException } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResponseUserDto } from './dto/response-user.dto';
 
-const prisma = new PrismaClient();
-
 @Injectable()
 export class UsersService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async create(createUserDto: CreateUserDto): Promise<ResponseUserDto> {
     try {
-      const existingUser = await prisma.user.findUnique({ where: { email: createUserDto.email } });
+      const existingUser = await this.prisma.user.findUnique({ where: { email: createUserDto.email } });
       if (existingUser) {
         throw new ConflictException('Já existe um usuário com este email.');
       }
-      // A senha será hasheada pelo hook @BeforeInsert na entidade User
-      const user = await prisma.user.create({ data: createUserDto });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user; // Exclui a senha da resposta
+      // A senha deve ser hasheada antes de salvar (implemente se necessário)
+      const user = await this.prisma.user.create({ data: createUserDto });
+      const { password, ...result } = user;
       return new ResponseUserDto(result);
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -28,58 +27,45 @@ export class UsersService {
   }
 
   async findAll(): Promise<ResponseUserDto[]> {
-    const users = await prisma.user.findMany();
-    return users.map(user => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, ...result } = user;
-        return new ResponseUserDto(result);
-    });
+    const users = await this.prisma.user.findMany();
+    return users.map(({ password, ...result }) => new ResponseUserDto(result));
   }
 
-  async findOne(id: string): Promise<ResponseUserDto> {
-    const user = await prisma.user.findUnique({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`Usuário com ID "${id}" não encontrado.`);
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    return new ResponseUserDto(result);
+  async findOne(id: number): Promise<any | null> {
+    return this.prisma.user.findUnique({ where: { id } });
   }
 
-  async findOneByEmail(email: string): Promise<User | undefined> {
-    // Este método retorna a entidade User completa, incluindo a senha (necessário para login)
-    // Cuidado ao expor este método diretamente em um controller sem proteção adequada
-    return prisma.user.findUnique({ where: { email }, select: { id: true, name: true, email: true, password: true, createdAt: true, updatedAt: true } });
+  async findOneByEmail(email: string): Promise<any | undefined> {
+    return this.prisma.user.findUnique({ where: { email } });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<ResponseUserDto> {
-    const user = await prisma.user.update({
-      where: { id },
-      data: updateUserDto,
-    });
-
-    if (!user) {
-      throw new NotFoundException(`Usuário com ID "${id}" não encontrado.`);
-    }
-
-    // Se uma nova senha for fornecida, ela será hasheada pelo hook @BeforeUpdate
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<ResponseUserDto> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const user = await this.prisma.user.update({
+        where: { id },
+        data: updateUserDto,
+      });
       const { password, ...result } = user;
       return new ResponseUserDto(result);
     } catch (error) {
-        // Tratamento de erro para violação de constraint unique (ex: email duplicado)
-        if (error.code === 'P2002') { // Código para violação de unique constraint no Prisma
-            throw new ConflictException('O email fornecido já está em uso por outro usuário.');
-        }
+      if (error.code === 'P2002') {
+        throw new ConflictException('O email fornecido já está em uso por outro usuário.');
+      }
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`Usuário com ID "${id}" não encontrado.`);
+      }
       throw new InternalServerErrorException('Erro ao atualizar usuário.');
     }
   }
 
-  async remove(id: string): Promise<void> {
-    const result = await prisma.user.deleteMany({ where: { id } });
-    if (result.count === 0) {
-      throw new NotFoundException(`Usuário com ID "${id}" não encontrado.`);
+  async remove(id: number): Promise<void> {
+    try {
+      await this.prisma.user.delete({ where: { id } });
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`Usuário com ID "${id}" não encontrado.`);
+      }
+      throw new InternalServerErrorException('Erro ao remover usuário.');
     }
   }
 }
