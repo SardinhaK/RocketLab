@@ -21,132 +21,73 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-# Sistema de Compras Online - RocketLab
+# Shopping Cart Backend - RocketLab
 
-Este projeto é uma API backend desenvolvida com NestJS, TypeScript e Prisma ORM, utilizando SQLite como banco de dados. O sistema permite gerenciar produtos, adicionar/remover itens em um carrinho virtual e finalizar compras.
+Um sistema de backend para um carrinho de compras online, desenvolvido com NestJS, TypeScript, Prisma e SQLite. Permite gerenciar usuários, produtos, carrinhos e pedidos, oferecendo endpoints REST documentados via Swagger.
 
-## Funcionalidades
-- CRUD de produtos (criar, listar, buscar, atualizar, remover)
-- Carrinho de compras (adicionar, remover, atualizar itens, limpar carrinho)
-- Finalização de compra (checkout)
-- Documentação automática via Swagger
+## 🚀 Tecnologias Utilizadas
+- **Framework:** NestJS
+- **Linguagem:** TypeScript
+- **ORM:** Prisma
+- **Banco de Dados:** SQLite (arquivo local)
+- **Documentação de API:** Swagger (via @nestjs/swagger)
+- **Validação de DTOs:** class-validator e class-transformer
+- **Gerenciador de Pacotes:** pnpm
+- **Seed de dados iniciais:** script TypeScript em `prisma/seed.ts`
 
-## Tecnologias Utilizadas
-- [NestJS](https://nestjs.com/)
-- [Prisma ORM](https://www.prisma.io/)
-- [SQLite](https://www.sqlite.org/)
-- [TypeScript](https://www.typescriptlang.org/)
+## Como Rodar o Projeto
 
-## Como executar o projeto
+### 1. Clonar o repositório
 
-### 1. Instale as dependências
+```powershell
+git clone https://github.com/SardinhaK/RocketLab/tree/main
+cd backend-rocketlab
+```
+
+### 2. Criar arquivo de ambiente
+
+Copie o arquivo de exemplo e ajuste se necessário:
+```powershell
+cp .env.example .env
+```
+No `.env`, defina a variável de conexão:
+```
+DATABASE_URL="file:./dev.db"
+```
+
+### 3. Executar o setup do projeto
 
 ```powershell
 pnpm install
+npx prisma generate
+npx prisma db seed
 ```
+Isso irá rodar o seed e popular o banco com usuários, produtos, carrinhos e pedidos de exemplo.
 
-ou
+### 4. Iniciar a aplicação
 
 ```powershell
-npm install
+pnpm run start:dev
 ```
+O servidor ficará disponível em http://localhost:3000/api-docs.
 
-### 2. Rode as migrations do banco de dados
-
-```powershell
-npx prisma migrate dev --name init
-```
-
-### 3. Inicie a aplicação
-
-```powershell
-pnpm start:dev
-```
-
-ou
-
-```powershell
-npm run start:dev
-```
-
-A API estará disponível em: http://localhost:3000
-
-### 4. Acesse a documentação Swagger
-
+### 5. Acessar a documentação no Swagger
 Abra no navegador:
-
 ```
-http://localhost:3000/api
+http://localhost:3000/api-docs
 ```
-
-Você pode testar todos os endpoints diretamente pela interface Swagger.
-
-## Exemplos de uso (via cURL)
-
-### Produtos
-
-**Criar produto:**
-```sh
-curl -X POST http://localhost:3000/products -H "Content-Type: application/json" -d "{\"name\":\"Notebook\",\"description\":\"Dell Inspiron\",\"price\":3500,\"stock\":10}"
-```
-
-**Listar produtos:**
-```sh
-curl http://localhost:3000/products
-```
-
-**Buscar produto por ID:**
-```sh
-curl http://localhost:3000/products/1
-```
-
-**Atualizar produto:**
-```sh
-curl -X PATCH http://localhost:3000/products/1 -H "Content-Type: application/json" -d "{\"price\":3200}"
-```
-
-**Remover produto:**
-```sh
-curl -X DELETE http://localhost:3000/products/1
-```
-
-### Carrinho
-
-**Adicionar item ao carrinho:**
-```sh
-curl -X POST http://localhost:3000/cart/1/add -H "Content-Type: application/json" -d "{\"productId\":1,\"quantity\":2}"
-```
-
-**Ver carrinho:**
-```sh
-curl http://localhost:3000/cart/1
-```
-
-**Atualizar quantidade de item:**
-```sh
-curl -X PATCH http://localhost:3000/cart/1/item/1 -H "Content-Type: application/json" -d "{\"quantity\":3}"
-```
-
-**Remover item do carrinho:**
-```sh
-curl -X DELETE http://localhost:3000/cart/1/item/1
-```
-
-**Limpar carrinho:**
-```sh
-curl -X DELETE http://localhost:3000/cart/1/clear
-```
-
-**Finalizar compra:**
-```sh
-curl -X POST http://localhost:3000/cart/1/checkout
-```
+A partir daí, você pode testar todos os endpoints de usuários, produtos, carrinho e pedidos.
 
 ---
 
-## Observações
-- O `cartId` pode ser qualquer número inteiro. Se não existir, será criado automaticamente ao adicionar o primeiro item.
-- Utilize o Swagger para explorar e testar todos os endpoints facilmente.
+## Funcionalidades
+- CRUD de produtos (criar, listar, buscar, atualizar, remover)
+- CRUD de usuários
+- Carrinho de compras (adicionar, remover, atualizar itens, limpar carrinho)
+- Finalização de compra (checkout)
+- Autenticação de usuários (JWT)
+- Documentação automática via Swagger
+- Seed de dados para testes rápidos
 
 ---
 
